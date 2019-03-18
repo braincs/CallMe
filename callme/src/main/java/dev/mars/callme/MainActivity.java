@@ -3,6 +3,7 @@ package dev.mars.callme;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +25,7 @@ import dev.mars.callme.service.CommunicateService;
 import dev.mars.audio.AudioUtils;
 import dev.mars.audio.LogUtils;
 import dev.mars.audio.NativeLib;
+import dev.mars.callme.utils.HotspotUtil;
 
 import static android.Manifest.permission.CHANGE_WIFI_MULTICAST_STATE;
 
@@ -121,5 +123,10 @@ public class MainActivity extends BaseActivity {
 
     public void stopPlay(View view) {
         CommunicateService.stopPlay(getActivity());
+    }
+
+    public void startHotspot(View view) {
+        HotspotUtil.CreatHotspot((WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE));
+        ((TextView)findViewById(R.id.tvHotspot)).setText("热点名称："+ HotspotUtil.APName +"\n密码："+HotspotUtil.APPassword);
     }
 }

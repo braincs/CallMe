@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import dev.mars.callme.bean.UDPMessage;
 import dev.mars.callme.utils.LogUtils;
+import dev.mars.callme.utils.WifiUtils;
 
 /**
  * Created by ma.xuanwei on 2017/3/22.
@@ -78,7 +79,48 @@ public class UDPUtils {
                     }
                     dp = new DatagramPacket(buf, buf.length,
                             InetAddress.getByName(destIP), port);
-                    LogUtils.D("UDP SEND:" + str+" PORT:"+port);
+                    LogUtils.D("UDP SEND:" + str+" IP:" + destIP +" PORT:"+port);
+                    sendSocket.send(dp);
+                } catch (UnknownHostException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        });
+
+    }
+    public void send(final InetAddress destIP,final UDPMessage msg) {
+        service.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (sendSocket == null) {
+                    try {
+                        sendSocket = new DatagramSocket();
+                        sendSocket.setBroadcast(true);
+                    } catch (SocketException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                }
+                DatagramPacket dp;
+                try {
+                    String str = msg.toString();
+                    byte[] strBytes = str.getBytes("UTF-8");
+                    int length = strBytes.length;
+                    byte[] buf = new byte[length + 4];
+                    buf[0] = (byte) (length >> 24);
+                    buf[1] = (byte) (length >> 16);
+                    buf[2] = (byte) (length >> 8);
+                    buf[3] = (byte) (length);
+                    for (int i = 4; i < length + 4; i++) {
+                        buf[i] = strBytes[i - 4];
+                    }
+                    dp = new DatagramPacket(buf, buf.length,
+                            destIP, port);
+                    LogUtils.D("UDP SEND:" + str +" PORT:"+port);
                     sendSocket.send(dp);
                 } catch (UnknownHostException e) {
                     // TODO Auto-generated catch block
@@ -93,7 +135,7 @@ public class UDPUtils {
     }
 
     public void send(final UDPMessage msg) {
-        send("255.255.255.255",msg);
+        send("192.168.43.255",msg);
 
     }
 

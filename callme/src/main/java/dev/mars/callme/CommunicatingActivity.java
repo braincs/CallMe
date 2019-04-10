@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -25,7 +26,7 @@ public class CommunicatingActivity extends BaseActivity {
 
     TextView textView;
     String otherIP;
-    CheckBox cbMic,cbSpeaker,cbEchoClear,cbNoiceClear;
+    CheckBox cbMic,cbSpeaker,cbEchoClear,cbNoiceClear,cbBlueOn;
 
     CommunicateService.CommunicateServiceBinder binder;
 
@@ -37,21 +38,25 @@ public class CommunicatingActivity extends BaseActivity {
             cbSpeaker.setOnCheckedChangeListener(null);
             cbNoiceClear.setOnCheckedChangeListener(null);
             cbEchoClear.setOnCheckedChangeListener(null);
+            cbBlueOn.setOnCheckedChangeListener(null);
 
             cbMic.setChecked(false);
             cbSpeaker.setChecked(false);
             cbNoiceClear.setChecked(binder.isNoiceClearEnable());
             cbEchoClear.setChecked(binder.isEchoClearEnable());
+            cbBlueOn.setChecked(false);
 
             cbMic.setOnCheckedChangeListener(onCheckedChangeListener);
             cbSpeaker.setOnCheckedChangeListener(onCheckedChangeListener);
             cbNoiceClear.setOnCheckedChangeListener(onCheckedChangeListener);
             cbEchoClear.setOnCheckedChangeListener(onCheckedChangeListener);
+            cbBlueOn.setOnCheckedChangeListener(onCheckedChangeListener);
 
             cbMic.setChecked(false);
             cbSpeaker.setChecked(false);
             cbEchoClear.setChecked(true);
             cbNoiceClear.setChecked(true);
+            cbBlueOn.setChecked(false);
         }
 
         @Override
@@ -70,6 +75,7 @@ public class CommunicatingActivity extends BaseActivity {
         cbSpeaker = (CheckBox)findViewById(R.id.cbSpeaker);
         cbNoiceClear = (CheckBox) findViewById(R.id.cbNoiseClear);
         cbEchoClear = (CheckBox) findViewById(R.id.cbEchoClear);
+        cbBlueOn = (CheckBox) findViewById(R.id.cbBlueOn);
 
         init();
 
@@ -93,9 +99,17 @@ public class CommunicatingActivity extends BaseActivity {
                 case R.id.cbEchoClear:
                     setEchoClear();
                     break;
+                case R.id.cbBlueOn:
+                    setBlueOn();
+                    break;
             }
         }
     };
+
+    private void setBlueOn() {
+        Log.d("debug", "cbBlueOn.isChecked() = " + cbBlueOn.isChecked());
+        binder.setBlueOn(cbBlueOn.isChecked());
+    }
 
     private void setEchoClear() {
         binder.setEchoClearEnable(cbEchoClear.isChecked());

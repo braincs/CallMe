@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -75,12 +76,15 @@ public class CommunicateService extends Service {
     SendAudioFrameRunnable sendAudioRunnable;
 
     private CommunicateServiceBinder communicateServiceBinder = new CommunicateServiceBinder();
+    private AudioManager mAudioManager;
+    private volatile boolean isBluetoothCommunicating;
 
     @Override
     public void onCreate() {
         super.onCreate();
         udpUtils = new UDPUtils(getBaseContext());
         audioUtils = new AudioUtils();
+        mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
     }
 
     public static void startListen(Context context, int udp_port, int tcp_port) {
@@ -208,6 +212,14 @@ public class CommunicateService extends Service {
         if (audioUtils.isRecording()) {
             return;
         }
+
+        if (mAudioManager != null && isBluetoothCommunicating) {
+            Log.d("debug", "setBluetoothScoOn");
+
+            mAudioManager.setBluetoothScoOn(true);
+            mAudioManager.startBluetoothSco();
+        }
+
         audioUtils.startRecord(new AudioUtils.OnRecordListener() {
             @Override
             public void onRecord(byte[] datas) {
@@ -259,6 +271,11 @@ public class CommunicateService extends Service {
     private void stopAudioRecord() {
         if (audioUtils != null) {
             audioUtils.stopRecord();
+
+            if (mAudioManager != null && mAudioManager.isBluetoothScoOn()) {
+                mAudioManager.setBluetoothScoOn(false);
+                mAudioManager.stopBluetoothSco();
+            }
         }
     }
 
@@ -611,6 +628,11 @@ public class CommunicateService extends Service {
 
         public void setEchoClearEnable(boolean enable) {
             audioUtils.setEchoClearEnable(enable);
+        }
+
+        public void setBlueOn(boolean enable){
+            isBluetoothCommunicating = enable;
+            Log.d("debug", "isBluetoothCommunicating = " + isBluetoothCommunicating);
         }
 
         public void turnOnMic() {

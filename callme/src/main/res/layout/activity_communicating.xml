@@ -44,4 +44,10 @@
         android:text="消除回声"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
+    <CheckBox
+        android:id="@+id/cbBlueOn"
+        android:text="开启蓝牙"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 </LinearLayout>

@@ -1,6 +1,11 @@
 package dev.mars.audio;
 
+import android.content.Context;
 import android.provider.SyncStateContract;
+import android.util.Log;
+
+import com.attrsc.braincs.audio.AudioRecorder;
+import com.attrsc.braincs.audio.utils.AudioDelegate;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -13,11 +18,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AudioUtils {
     private ExecutorService executor = Executors.newCachedThreadPool();
-    private NativeLib nativeBridge;
+    private AudioDelegate nativeBridge;
+//    private NativeLib nativeBridge;
 
     public AudioUtils(){
-        nativeBridge = new NativeLib();
+        nativeBridge = new AudioDelegate();
     }
+//    public void setBlueOn(boolean enable){
+//        nativeBridge.setBlueOn(enable);
+//    }
 
     public void setNoiseClear(boolean enable){
         nativeBridge.setNoiseClear(enable);
@@ -70,12 +79,30 @@ public class AudioUtils {
         if(nativeBridge.isRecording()){
             return;
         }
+//        executor.execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                nativeBridge.setOnRecordListener(new NativeLib.OnRecordListener() {
+//                    @Override
+//                    public void onRecord(byte[] datas) {
+//                        onRecordListener.onRecord(datas);
+//                    }
+//
+//                    @Override
+//                    public void onStart() {
+//                        onRecordListener.onStart();
+//                    }
+//                });
+//                nativeBridge.startRecording2(Common.SAMPLERATE,Common.PERIOD_TIME,Common.CHANNELS);
+//            }
+//        });
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                nativeBridge.setOnRecordListener(new NativeLib.OnRecordListener() {
+                nativeBridge.setOnRecordListener(new AudioRecorder.OnRecordListener() {
                     @Override
                     public void onRecord(byte[] datas) {
+                        Log.d("debug", "receive data " + datas.length);
                         onRecordListener.onRecord(datas);
                     }
 
